@@ -21,14 +21,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/AliyunContainerService/kube-eventer/util"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/AliyunContainerService/kube-eventer/util"
+
 	"github.com/AliyunContainerService/kube-eventer/core"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
 
@@ -228,7 +229,7 @@ func createMsgFromEvent(d *DingTalkSink, event *v1.Event) *DingTalkMsg {
 			}
 		}
 		msg.Text = DingTalkText{
-			Content: fmt.Sprintf(template, event.Type, event.InvolvedObject.Kind, event.Namespace, event.Name, event.Reason, util.GetLastEventTimestamp(event).Format(time.DateTime), event.Message),
+			Content: fmt.Sprintf(template, event.Type, event.InvolvedObject.Kind, event.Namespace, event.Name, event.Reason, util.GetLastEventTimestamp(event).Format(time.RFC3339), event.Message),
 		}
 		break
 	}

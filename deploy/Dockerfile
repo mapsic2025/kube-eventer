@@ -1,4 +1,4 @@
-FROM golang:1.19.3 AS build-env
+FROM public.ecr.aws/docker/library/golang:1.19.3 AS build-env
 ADD . /src/github.com/AliyunContainerService/kube-eventer
 ENV GOPATH /:/src/github.com/AliyunContainerService/kube-eventer/vendor
 ENV GO111MODULE on
@@ -8,9 +8,10 @@ RUN apt-get update -y && apt-get install gcc ca-certificates
 RUN make
 
 
-FROM alpine:3.11.6
+FROM public.ecr.aws/docker/library/alpine:3.21
 
-RUN apk --no-cache --update upgrade
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories && \
+    apk --no-cache --update upgrade
 
 COPY --from=build-env /src/github.com/AliyunContainerService/kube-eventer/kube-eventer /
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

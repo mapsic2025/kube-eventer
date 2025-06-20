@@ -3,8 +3,9 @@ package elasticsearch
 import (
 	"context"
 	"fmt"
-	"k8s.io/klog"
 	"time"
+
+	"k8s.io/klog"
 
 	elastic7 "github.com/olivere/elastic/v7"
 	"github.com/pborman/uuid"
@@ -113,7 +114,6 @@ func (es *Elastic7Wrapper) ErrorStats() int64 {
 func (es *Elastic7Wrapper) AddBulkReq(index, typeName string, data interface{}) error {
 	req := elastic7.NewBulkIndexRequest().
 		Index(index).
-		Type(typeName).
 		Id(uuid.NewUUID().String()).
 		Doc(data)
 	if es.pipeline != "" {
@@ -131,6 +131,12 @@ func (es *Elastic7Wrapper) FlushBulk() error {
 func bulkAfterCBV7(_ int64, _ []elastic7.BulkableRequest, response *elastic7.BulkResponse, err error) {
 	if err != nil {
 		klog.Warningf("Failed to execute bulk operation to ElasticSearch: %v", err)
+		return
+	}
+
+	if response == nil {
+		klog.Warningf("Bulk response is nil")
+		return
 	}
 
 	if response.Errors {
